@@ -1,6 +1,6 @@
-mod completer;
+extern crate gpt;
 
-use completer::{Completer, GptCompleter};
+use gpt::completer::{Completer, GptCompleter};
 
 fn main() {
     // Initialize the GPT Completer
@@ -10,3 +10,4 @@ fn main() {
     let response = gpt_completer.complete("AI Chatbot: Hello, my name is ");
     println!("{}", response);
 }
+
