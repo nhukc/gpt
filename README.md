@@ -20,9 +20,9 @@ use the GptCompleter struct to generate text completions.  Here is the example
 code:
 
 ```rust
-extern crate your_crate_name; // Replace with your actual crate name
+extern crate gpt;
 
-use your_crate_name::completer::{Completer, GptCompleter};
+use gpt::completer::{Completer, GptCompleter};
 
 fn main() {
     // Initialize the GPT Completer
