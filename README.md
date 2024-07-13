@@ -1,3 +1,5 @@
+[![Rust](https://github.com/nhukc/gpt/actions/workflows/rust.yml/badge.svg)](https://github.com/nhukc/gpt/actions/workflows/rust.yml)
+
 # GPT Completer
 
 This is a simple GPT Completer that uses the OpenAI API to generate text completions.
