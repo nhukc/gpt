@@ -14,15 +14,6 @@ export OPENAI_API_KEY=your_api_key
 
 Then, you can use the `GptCompleter` struct to generate text completions.
 
-## Running the Example
-To run the example provided in this project, follow these steps:
-
-Ensure that you have set the `OPENAI_API_KEY` environment variable as shown above.
-Use the `cargo run --example basic` command to execute the example.
-```bash
-cargo run --example basic
-```
-
 ## Example Code
 The example code is located in the examples directory and demonstrates how to
 use the GptCompleter struct to generate text completions.  Here is the example
@@ -41,6 +32,15 @@ fn main() {
     let response = gpt_completer.complete("AI Chatbot: Hello, my name is ");
     println!("{}", response);
 }
+```
+
+## Running the Example
+To run the example provided in this project, follow these steps:
+
+Ensure that you have set the `OPENAI_API_KEY` environment variable as shown above.
+Use the `cargo run --example basic` command to execute the example.
+```bash
+cargo run --example basic
 ```
 
 This will print out a completion for the prompt, such as "AI Chatbot: Hello, my name is AI Chatbot. I am an artificial intelligence".
