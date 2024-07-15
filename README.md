@@ -34,6 +34,8 @@ fn main() {
 }
 ```
 
+This will print out a completion for the prompt, such as "AI Chatbot: Hello, my name is AI Chatbot. I am an artificial intelligence".
+
 ## Running the Example
 To run the example provided in this project, follow these steps:
 
@@ -42,5 +44,3 @@ Use the `cargo run --example basic` command to execute the example.
 ```bash
 cargo run --example basic
 ```
-
-This will print out a completion for the prompt, such as "AI Chatbot: Hello, my name is AI Chatbot. I am an artificial intelligence".
