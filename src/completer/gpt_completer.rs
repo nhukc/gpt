@@ -28,7 +28,7 @@ impl GptCompleter {
                 "model": "gpt-3.5-turbo-instruct",
                 "prompt": prompt,
                 "temperature": 0,
-                "max_tokens": 9,
+                "max_tokens": 30,
                 "top_p": 1,
                 "frequency_penalty": 0,
                 "presence_penalty": 0
