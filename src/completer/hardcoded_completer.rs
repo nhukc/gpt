@@ -16,7 +16,7 @@ impl HardcodedCompleter {
 }
 
 impl Completer for HardcodedCompleter {
-    fn complete(&self, input: &str) -> Result<String, CompleterError> {
+    async fn complete(&self, input: &str) -> Result<String, CompleterError> {
         let mappings = HardcodedCompleter::get_mappings();
 
         for (key, value) in mappings {

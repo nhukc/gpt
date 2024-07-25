@@ -10,5 +10,5 @@ pub enum CompleterError {
 }
 
 pub trait Completer {
-    fn complete(&self, input: &str) -> Result<String, CompleterError>;
+    fn complete(&self, input: &str) -> impl std::future::Future<Output = Result<String, CompleterError>> + Send;
 }

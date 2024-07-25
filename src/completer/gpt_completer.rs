@@ -1,5 +1,5 @@
 use crate::completer::Completer;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use serde::Deserialize;
 use std::env;
 
@@ -18,7 +18,7 @@ struct Choice {
 }
 
 impl GptCompleter {
-    fn call_openai_api(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
+    async fn call_openai_api(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
         let api_key = env::var("OPENAI_API_KEY")?;
         let client = Client::new();
 
@@ -35,8 +35,8 @@ impl GptCompleter {
                 "frequency_penalty": 0,
                 "presence_penalty": 0
             }))
-            .send()?
-            .json::<OpenAIResponse>()?;
+            .send().await?
+            .json::<OpenAIResponse>().await?;
 
         if let Some(choice) = response.choices.get(0) {
             return Ok(prompt.to_owned() + &choice.text.clone());
@@ -46,8 +46,8 @@ impl GptCompleter {
 }
 
 impl Completer for GptCompleter {
-    fn complete(&self, input: &str) -> Result<String, CompleterError> {
-        match GptCompleter::call_openai_api(input) {
+    async fn complete(&self, input: &str) -> Result<String, CompleterError> {
+        match GptCompleter::call_openai_api(input).await {
             Ok(response) => Ok(response.trim().to_string()),
             Err(_) => Err(ConnectionFailed),
         }
