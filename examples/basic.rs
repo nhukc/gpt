@@ -8,6 +8,6 @@ fn main() {
 
     // Generate a completion for the prompt "Hello, my name is"
     let response = gpt_completer.complete("AI Chatbot: Hello, my name is ");
-    println!("{}", response);
+    println!("{}", response.expect("Hopefully this passed"));
 }
 

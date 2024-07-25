@@ -4,6 +4,8 @@ use serde::Deserialize;
 use std::env;
 
 pub struct GptCompleter;
+use crate::completer::completer::CompleterError;
+use crate::completer::gpt_completer::CompleterError::ConnectionFailed;
 
 #[derive(Deserialize)]
 struct OpenAIResponse {
@@ -44,10 +46,10 @@ impl GptCompleter {
 }
 
 impl Completer for GptCompleter {
-    fn complete(&self, input: &str) -> String {
+    fn complete(&self, input: &str) -> Result<String, CompleterError> {
         match GptCompleter::call_openai_api(input) {
-            Ok(response) => response.trim().to_string(),
-            Err(_) => "CONNECTION FAILED".to_string(),
+            Ok(response) => Ok(response.trim().to_string()),
+            Err(_) => Err(ConnectionFailed),
         }
     }
 }
