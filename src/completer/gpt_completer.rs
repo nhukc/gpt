@@ -18,7 +18,7 @@ struct Choice {
 }
 
 impl GptCompleter {
-    fn call_openai_api(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
+    fn call_openai_api(prompt: String) -> Result<String, Box<dyn std::error::Error>> {
         let api_key = env::var("OPENAI_API_KEY")?;
         let client = Client::new();
 
@@ -46,7 +46,7 @@ impl GptCompleter {
 }
 
 impl Completer for GptCompleter {
-    fn complete(&self, input: &str) -> Result<String, CompleterError> {
+    fn complete(&self, input: String) -> Result<String, CompleterError> {
         match GptCompleter::call_openai_api(input) {
             Ok(response) => Ok(response.trim().to_string()),
             Err(_) => Err(ConnectionFailed),

@@ -10,5 +10,5 @@ pub enum CompleterError {
 }
 
 pub trait Completer {
-    fn complete(&self, input: &str) -> Result<String, CompleterError>;
+    fn complete(&self, input: String) -> Result<String, CompleterError>;
 }

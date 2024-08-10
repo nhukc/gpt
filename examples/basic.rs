@@ -8,12 +8,6 @@ use crossbeam_channel::{Receiver, Sender};
 use crossbeam_channel::{SendError, RecvError};
 use std::thread;
 
-// Server and world initiation.
-// Two people in a room.
-// One person says hello to the other.
-// The server informs both people what happened.
-// No state is updated.
-
 struct PersonSender {
     name: String,
     sender: Sender<String>,
@@ -30,7 +24,6 @@ impl PersonSender {
         for line in t.split("\n") {
             println!("\t{}", line);
         }
-        print!("\t{}: ", self.name);
         self.sender.send(t)
     }
 }
@@ -49,36 +42,60 @@ impl PersonReceiver {
     }
 }
 
+fn npc(name: String) -> (PersonSender, PersonReceiver) {
+    let (server_tx, person_rx) = channel::unbounded::<String>();
+    let (person_tx, server_rx) = channel::unbounded();
+    let name_clone = name.clone();
+    thread::spawn(move || {
+        let mut state = person_rx.recv().unwrap();
+        state.push_str(&format!("[Your response here]
+Write your response as if you were saying it aloud.
+More general actions can be indicated by enclosing the action with *
+
+For example, *I do nothing.*
+
+{}: ", name));
+
+        let gpt_completer = GptCompleter;
+        let response = gpt_completer.complete(state).unwrap_or("*is unresponsive*".to_string());
+        let lines: Vec<_> = response.split("\n").collect();
+        let final_line = lines[lines.len() - 1];
+        let final_line = final_line.replace(&format!("{}:  ", name), "");
+        person_tx.send(final_line.to_string())
+    });
+
+    (PersonSender {name: name_clone.clone(), sender: server_tx}, PersonReceiver {name: name_clone.clone(), receiver: server_rx})
+}
 
 fn person(name: String) -> (PersonSender, PersonReceiver) {
     let (server_tx, person_rx) = channel::unbounded();
     let (person_tx, server_rx) = channel::unbounded();
-
+    let name_clone = name.clone();
     thread::spawn(move || {
         let state = person_rx.recv().unwrap();
 
+        print!("\t{}: ", name);
         let line: String = read!("{}\n");
         person_tx.send(line)
     });
 
-    (PersonSender {name: name.clone(), sender: server_tx}, PersonReceiver {name, receiver: server_rx})
+    (PersonSender {name: name_clone.clone(), sender: server_tx}, PersonReceiver {name: name_clone.clone(), receiver: server_rx})
 }
 
 fn main() {
     let (person1_tx, person1_rx) = person("Person 1".to_string());
-    let (person2_tx, person2_rx) = person("Person 2".to_string());
+    let (person2_tx, person2_rx) = npc("Person 2".to_string());
 
-    person1_tx.send("You are in a room.".to_string());
+    println!("There are two people in a room. Person 1 and Person 2.");
+    println!("The two people do not know each other.");
+    println!("The two people do not notice each other.");
+
+    let state = "You are in a room".to_string();
+    person1_tx.send(state);
     let response = person1_rx.recv().unwrap();
+
     let state = format!("You are in a room.\nA voice calls out \"{}\"", response);
     person2_tx.send(state);
-    let person2_response = person2_rx.recv();
-
-    // Initialize the GPT Completer
-    let gpt_completer = GptCompleter;
-
-    // Generate a completion for the prompt "Hello, my name is"
-    let response = gpt_completer.complete("AI Chatbot: Hello, my name is ");
-    println!("{}", response.expect("Hopefully this passed"));
+    let response = person2_rx.recv();
 }
 
