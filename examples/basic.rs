@@ -2,10 +2,7 @@ extern crate gpt;
 #[macro_use] extern crate text_io;
 
 use gpt::completer::{Completer, GptCompleter};
-
-use crossbeam::channel;
-use crossbeam_channel::{Receiver, Sender};
-use crossbeam_channel::{SendError, RecvError};
+use crossbeam_channel::{unbounded, Receiver, Sender, SendError, RecvError};
 use std::thread;
 
 struct PersonSender {
@@ -21,7 +18,7 @@ struct PersonReceiver {
 impl PersonSender {
     pub fn send(&self, t: String) -> Result<(), SendError<String>> {
         println!("{} sees:", self.name);
-        for line in t.split("\n") {
+        for line in t.split('\n') {
             println!("\t{}", line);
         }
         self.sender.send(t)
@@ -35,51 +32,61 @@ impl PersonReceiver {
                 println!("{}: {}", self.name, msg);
                 Ok(msg)
             },
-            Err(e) => {
-                Err(e)
-            }
+            Err(e) => Err(e),
         }
     }
 }
 
 fn npc(name: String) -> (PersonSender, PersonReceiver) {
-    let (server_tx, person_rx) = channel::unbounded::<String>();
-    let (person_tx, server_rx) = channel::unbounded();
+    let (server_tx, person_rx) = unbounded::<String>();
+    let (person_tx, server_rx) = unbounded();
     let name_clone = name.clone();
     thread::spawn(move || {
         let mut state = person_rx.recv().unwrap();
-        state.push_str(&format!("[Your response here]
-Write your response as if you were saying it aloud.
-More general actions can be indicated by enclosing the action with *
+        state.push_str(&format!("[Your response here]\nWrite your response as if you were saying it aloud.\nMore general actions can be indicated by enclosing the action with *\n\nFor example, *I do nothing.*\n\n{}: ", name));
 
-For example, *I do nothing.*
-
-{}: ", name));
-
+        // Simulate AI completion
         let gpt_completer = GptCompleter;
-        let response = gpt_completer.complete(state).unwrap_or("*is unresponsive*".to_string());
-        let lines: Vec<_> = response.split("\n").collect();
-        let final_line = lines[lines.len() - 1];
-        let final_line = final_line.replace(&format!("{}:  ", name), "");
-        person_tx.send(final_line.to_string())
+        let response = gpt_completer.complete(state).unwrap().completion;
+        let lines: Vec<_> = response.split('\n').collect();
+        let final_line = lines[lines.len() - 1].replace(&format!("{}:  ", name), "");
+        person_tx.send(final_line).unwrap();
     });
 
-    (PersonSender {name: name_clone.clone(), sender: server_tx}, PersonReceiver {name: name_clone.clone(), receiver: server_rx})
+    (
+        PersonSender {
+            name: name_clone.clone(),
+            sender: server_tx,
+        },
+        PersonReceiver {
+            name: name_clone,
+            receiver: server_rx,
+        },
+    )
 }
 
 fn person(name: String) -> (PersonSender, PersonReceiver) {
-    let (server_tx, person_rx) = channel::unbounded();
-    let (person_tx, server_rx) = channel::unbounded();
+    let (server_tx, person_rx) = unbounded();
+    let (person_tx, server_rx) = unbounded();
     let name_clone = name.clone();
     thread::spawn(move || {
         let state = person_rx.recv().unwrap();
 
         print!("\t{}: ", name);
         let line: String = read!("{}\n");
-        person_tx.send(line)
+        person_tx.send(line).unwrap();
     });
 
-    (PersonSender {name: name_clone.clone(), sender: server_tx}, PersonReceiver {name: name_clone.clone(), receiver: server_rx})
+    (
+        PersonSender {
+            name: name_clone.clone(),
+            sender: server_tx,
+        },
+        PersonReceiver {
+            name: name_clone,
+            receiver: server_rx,
+        },
+    )
 }
 
 fn main() {
@@ -91,11 +98,11 @@ fn main() {
     println!("The two people do not notice each other.");
 
     let state = "You are in a room".to_string();
-    person1_tx.send(state);
+    person1_tx.send(state).unwrap();
     let response = person1_rx.recv().unwrap();
 
     let state = format!("You are in a room.\nA voice calls out \"{}\"", response);
-    person2_tx.send(state);
-    let response = person2_rx.recv();
+    person2_tx.send(state).unwrap();
+    let _ = person2_rx.recv();
 }
 

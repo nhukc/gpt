@@ -4,10 +4,7 @@ pub const INCOMPLETE_TREE_PARTS: &str = indoc! {"
     The parts of a tree are:
     - Trunk
     - "};
-pub const COMPLETE_TREE_PARTS: &str = indoc! {"
-    The parts of a tree are:
-    - Trunk
-    - Branches
+pub const COMPLETE_TREE_PARTS: &str = indoc! {"Branches
     - Leaves
     - Roots"
 };
@@ -17,11 +14,7 @@ pub const INCOMPLETE_TREE_CHARACTERISTICS: &str = indoc! {"
     - Tall
     - Green
     - "};
-pub const COMPLETE_TREE_CHARACTERISTICS: &str = indoc! {"
-    Adjectives describing an average tree are:
-    - Tall
-    - Green
-    - Leafy
+pub const COMPLETE_TREE_CHARACTERISTICS: &str = indoc! {"Leafy
     - Sturdy
     - Broad"
 };
@@ -36,3 +29,4 @@ pub fn characteristics() -> (&'static str, &'static str) {
         COMPLETE_TREE_CHARACTERISTICS,
     )
 }
+

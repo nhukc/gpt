@@ -1,9 +1,10 @@
-use crate::completer::Completer;
+use crate::completer::{Completer, CompletionResult};
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::env;
 
 pub struct GptCompleter;
+
 use crate::completer::completer::CompleterError;
 use crate::completer::gpt_completer::CompleterError::ConnectionFailed;
 
@@ -18,7 +19,7 @@ struct Choice {
 }
 
 impl GptCompleter {
-    fn call_openai_api(prompt: String) -> Result<String, Box<dyn std::error::Error>> {
+    fn call_openai_api(prompt: String) -> Result<CompletionResult, Box<dyn std::error::Error>> {
         let api_key = env::var("OPENAI_API_KEY")?;
         let client = Client::new();
 
@@ -39,17 +40,21 @@ impl GptCompleter {
             .json::<OpenAIResponse>()?;
 
         if let Some(choice) = response.choices.get(0) {
-            return Ok(prompt.to_owned() + &choice.text.clone());
+            return Ok(CompletionResult {
+                prompt: prompt.clone(),
+                completion: choice.text.clone(),
+            });
         }
         Err("Failed".into())
     }
 }
 
 impl Completer for GptCompleter {
-    fn complete(&self, input: String) -> Result<String, CompleterError> {
+    fn complete(&self, input: String) -> Result<CompletionResult, CompleterError> {
         match GptCompleter::call_openai_api(input) {
-            Ok(response) => Ok(response.trim().to_string()),
+            Ok(response) => Ok(response),
             Err(_) => Err(ConnectionFailed),
         }
     }
 }
+

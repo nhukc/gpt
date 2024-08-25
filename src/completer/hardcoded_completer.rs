@@ -1,4 +1,4 @@
-use crate::completer::Completer;
+use crate::completer::{Completer, CompletionResult};
 
 pub struct HardcodedCompleter;
 
@@ -16,15 +16,19 @@ impl HardcodedCompleter {
 }
 
 impl Completer for HardcodedCompleter {
-    fn complete(&self, input: String) -> Result<String, CompleterError> {
+    fn complete(&self, input: String) -> Result<CompletionResult, CompleterError> {
         let mappings = HardcodedCompleter::get_mappings();
 
         for (key, value) in mappings {
             if input.trim() == key.trim() {
-                return Ok(value.trim().to_string());
+                return Ok(CompletionResult {
+                    prompt: input.clone(),
+                    completion: value.trim().to_string(),
+                });
             }
         }
 
         Err(NotSupported)
     }
 }
+

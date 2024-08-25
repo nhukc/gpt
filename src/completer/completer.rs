@@ -9,6 +9,12 @@ pub enum CompleterError {
     NotSupported
 }
 
-pub trait Completer {
-    fn complete(&self, input: String) -> Result<String, CompleterError>;
+pub struct CompletionResult {
+    pub prompt: String,
+    pub completion: String,
 }
+
+pub trait Completer {
+    fn complete(&self, input: String) -> Result<CompletionResult, CompleterError>;
+}
+
