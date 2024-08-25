@@ -6,6 +6,12 @@ This is a simple GPT Completer that uses the OpenAI API to generate text complet
 
 ## Usage
 
+The crate can be added to your Cargo.toml with the following snippet.
+```toml
+[dependencies]
+gpt = { git = "https://github.com/nhukc/gpt.git", branch = "main" }
+```
+
 To use this completer, you will need to set the `OPENAI_API_KEY` environment variable to your OpenAI API key.
 
 ```bash
